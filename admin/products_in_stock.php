@@ -41,8 +41,7 @@ if ($search) {
     }
     $whereClause = "WHERE " . implode(" AND ", $conditions);
 }
-
-$stockQuery = "SELECT p.id, p.title, p.qty, o.total_quantity, p.qty - COALESCE(o.total_quantity, 0) AS stock_quantity, p.picture, c.name AS category_name, p.is_new, p.unit_price
+$stockQuery = "SELECT p.id, p.title, p.qty, o.total_quantity, GREATEST(p.qty - COALESCE(o.total_quantity, 0), 0) AS stock_quantity, p.picture, c.name AS category_name, p.is_new, p.unit_price
                FROM products p
                LEFT JOIN (
                  SELECT product_id, SUM(quantity) AS total_quantity
@@ -52,6 +51,7 @@ $stockQuery = "SELECT p.id, p.title, p.qty, o.total_quantity, p.qty - COALESCE(o
                LEFT JOIN categories c ON p.category_id = c.id
                $whereClause
                LIMIT $limit, $recordsPerPage";
+
 
 $stockResult = $conn->query($stockQuery);
 if (!$stockResult) {

@@ -39,48 +39,65 @@ class Carts
     }
 
     public function store()
-    {
+{
+    $_product_id = $_POST['product_id'];
+    $_user_id = $_POST['user_id'];
+    $_title = $_POST['title'];
+    $_mrp = intval($_POST['mrp']);
+    $_quantity = intval($_POST['quantity']);
+    $_picture = $_POST['picture'];
+    $_total_price = $_mrp * $_quantity;
 
-        // var_dump($_POST);
-        $_product_id = $_POST['product_id'];
-        $_user_id = $_POST['user_id'];
-        $_title = $_POST['title'];
-        $_mrp = intval($_POST['mrp']);
-        $_quantity = intval($_POST['quantity']);
-        $_picture = $_POST['picture'];
-        $_total_price = $_mrp * $_quantity;
-        $getCartProduct = $this->getCartProduct($_product_id, $_user_id);
-        if ($getCartProduct) {
-            // var_dump($_POST);
-            $_id = $getCartProduct['id'];
-            $_quantity = $_POST['quantity'];
-            $updatedTotalPrice = $getCartProduct['total_price'] + $_total_price;
-            $updatedQty = $getCartProduct['quantity'] + $_quantity;
-            $query = "UPDATE `carts` SET `total_price` = :total_price, `quantity` = :quantity WHERE `carts`.`id` = :id";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':id', $_id);
-            $stmt->bindParam(':total_price', $updatedTotalPrice);
-            $stmt->bindParam(':quantity', $updatedQty);
-            $result = $stmt->execute();
-        }else{
-            $query = "INSERT INTO `carts` (`product_id`,`user_id`, `title`, `mrp`,`total_price`,`quantity`,`picture`)
-            VALUES (:product_id, :user_id, :title,  :mrp, :total_price, :quantity, :picture)";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':product_id', $_product_id);
-            $stmt->bindParam(':user_id', $_user_id);
-            $stmt->bindParam(':title', $_title);
-            $stmt->bindParam(':mrp', $_mrp);
-            $stmt->bindParam(':total_price', $_total_price);
-            $stmt->bindParam(':quantity', $_quantity);
-            $stmt->bindParam(':picture', $_picture);
-            $result = $stmt->execute();
-        }
+    // Check current stock for the product
+    $query = "SELECT qty FROM products WHERE id = :product_id";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindParam(':product_id', $_product_id);
+    $stmt->execute();
+    $product = $stmt->fetch();
 
-
-
-
-        header("location: http://localhost/ecommerce_project/front/php/public/shopping_cart.php");
+    if (!$product) {
+        // Product not found
+        throw new Exception("Product not found.");
     }
+
+    $available_stock = $product['qty'];
+
+    if ($_quantity > $available_stock) {
+        // Requested quantity exceeds available stock
+        $_quantity = $available_stock; // Optionally, you can set it to the maximum available stock
+        $_total_price = $_mrp * $_quantity;
+        // You might want to set a flash message or handle this scenario
+    }
+
+    $getCartProduct = $this->getCartProduct($_product_id, $_user_id);
+
+    if ($getCartProduct) {
+        $_id = $getCartProduct['id'];
+        $updatedTotalPrice = $getCartProduct['total_price'] + $_total_price;
+        $updatedQty = $getCartProduct['quantity'] + $_quantity;
+        $query = "UPDATE `carts` SET `total_price` = :total_price, `quantity` = :quantity WHERE `carts`.`id` = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':id', $_id);
+        $stmt->bindParam(':total_price', $updatedTotalPrice);
+        $stmt->bindParam(':quantity', $updatedQty);
+        $result = $stmt->execute();
+    } else {
+        $query = "INSERT INTO `carts` (`product_id`, `user_id`, `title`, `mrp`, `total_price`, `quantity`, `picture`)
+                  VALUES (:product_id, :user_id, :title, :mrp, :total_price, :quantity, :picture)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':product_id', $_product_id);
+        $stmt->bindParam(':user_id', $_user_id);
+        $stmt->bindParam(':title', $_title);
+        $stmt->bindParam(':mrp', $_mrp);
+        $stmt->bindParam(':total_price', $_total_price);
+        $stmt->bindParam(':quantity', $_quantity);
+        $stmt->bindParam(':picture', $_picture);
+        $result = $stmt->execute();
+    }
+
+    header("Location: http://localhost/ecommerce_project/front/php/public/shopping_cart.php");
+}
+
 
     public function getCartProduct($productId, $_user_id)
     {
