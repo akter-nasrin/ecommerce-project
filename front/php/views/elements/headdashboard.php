@@ -23,7 +23,7 @@
 
 
 body {
-	background: #FAFAFA;
+	background: #FFFFFF !important;;
 }
 
 .custom-nav {

@@ -37,26 +37,39 @@ if ($search) {
     $keywords = explode(" ", $search);
     $conditions = [];
     foreach ($keywords as $keyword) {
-        $conditions[] = "(u.first_name LIKE '%$keyword%' OR u.last_name LIKE '%$keyword%' OR u.email LIKE '%$keyword%')";
+        $conditions[] = "(p.title LIKE '%$keyword%' OR c.name LIKE '%$keyword%')";
     }
     $whereClause = "WHERE " . implode(" AND ", $conditions);
 }
+$stockQuery = "SELECT p.id, p.title, p.qty, 
+                      COALESCE(o.total_quantity, 0) AS total_quantity, 
+                      -- In Stock: Subtract total orders from initial stock, but not below 0
+                      GREATEST(p.qty - COALESCE(o.total_quantity, 0), 0) AS stock_quantity, 
+                      -- Out Stock: If orders exceed stock, show the excess orders as out of stock
+                      IF(COALESCE(o.total_quantity, 0) > p.qty, COALESCE(o.total_quantity, 0) - p.qty, 0) AS out_stock_quantity, 
+                      p.picture, c.name AS category_name, p.is_new, p.unit_price
+               FROM products p
+               LEFT JOIN (
+                 SELECT product_id, SUM(quantity) AS total_quantity
+                 FROM orders
+                 GROUP BY product_id
+               ) o ON p.id = o.product_id
+               LEFT JOIN categories c ON p.category_id = c.id
+               $whereClause
+               LIMIT $limit, $recordsPerPage";
 
-$userQuery = "SELECT id, first_name, last_name, email, phone_number, user_name, address ,shipping_address
-              FROM users u
-              $whereClause
-              LIMIT $limit, $recordsPerPage";
-
-$userResult = $conn->query($userQuery);
-if (!$userResult) {
+$stockResult = $conn->query($stockQuery);
+if (!$stockResult) {
     die("Query failed: " . $conn->error);
 }
 
-// Get total number of users for pagination
-$totalUsersQuery = "SELECT COUNT(*) AS total FROM users u $whereClause";
-$totalUsersResult = $conn->query($totalUsersQuery);
-$totalUsers = $totalUsersResult->fetch_assoc()['total'];
-$totalPages = ceil($totalUsers / $recordsPerPage);
+// Get total number of products for pagination
+$totalProductsQuery = "SELECT COUNT(*) AS total FROM products p
+                       LEFT JOIN categories c ON p.category_id = c.id
+                       $whereClause";
+$totalProductsResult = $conn->query($totalProductsQuery);
+$totalProducts = $totalProductsResult->fetch_assoc()['total'];
+$totalPages = ceil($totalProducts / $recordsPerPage);
 ?>
 
 <!DOCTYPE html>
@@ -64,23 +77,15 @@ $totalPages = ceil($totalUsers / $recordsPerPage);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furni Frenzy - Registered Users</title>
+    <title>Quick Dine- Products in Stock</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome CDN link -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
         body {
             background-color: #f8f9fa;
-        }
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .header-container h2 {
-            margin: 0;
         }
         .sidebar {
             width: 240px;
@@ -92,16 +97,21 @@ $totalPages = ceil($totalUsers / $recordsPerPage);
             margin-top: 0;
             background-color: white;
         }
-        .btn-add-user {
-            background-color: #28a745;
-            color: white;
-            padding: 10px 20px;
-            text-transform: uppercase;
-            font-weight: bold;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+        .main-content {
+            margin-left: 240px; /* Same as sidebar width */
+            padding: 20px;
         }
-        .btn-add-user:hover {
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header-container h2 {
+            margin: 0;
+        }
+        
+        .btn-add-product:hover {
             background-color: #218838;
         }
         .table img {
@@ -133,48 +143,54 @@ $totalPages = ceil($totalUsers / $recordsPerPage);
     </style>
 </head>
 <body>
+
 <?php include_once 'sidebar.php'; ?>
-<div class="container mt-4">
+
+<div class="container mt-4 main-content">
     <div class="row">
         <div class="col-12">
-            <h2 class="text-center">View Register Customer</h2>
+            <h2 class="text-center">Products Management</h2>
             <div class="header-container">
                 <form class="search-form" method="GET" action="">
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search" value="<?= htmlspecialchars($search) ?>">
                     <button class="btn btn-outline-secondary" type="submit">Search</button>
                 </form>
-                <!--<a href="http://localhost/ecommerce_project/admin/users/create.php" class="btn btn-add-user ms-auto">Add User</a>-->
+                <a href="http://localhost/ecommerce_project/admin/products/create.php" class="btn btn-success btn-add-product ms-auto">Add Product</a>
             </div>
             <table class="table table-striped mt-3">
                 <thead>
                     <tr>
-                        <th>UserID</th>
-                        <th>FirstName</th>
-                        <th>LastName</th>
-                        <th>Email</th>
-                        <th>PhoneNumber</th>
-                        <th>Username</th>
-                        <th>Address</th>
-                        <th>Shipping Address</th>
-
+                        <th>ProductID</th>
+                        <th>ProductPicture</th>
+                        <th>ProductTitle</th>
+                        <th>Category</th>
+                        <th>New Product</th>
+                        <th>Total Price</th>
+                        <th>In Stock</th>
+                        <th>Out Stock</th>
+                        <th>Final Stock</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($row = $userResult->fetch_assoc()) { ?>
+                    <?php while ($row = $stockResult->fetch_assoc()) { ?>
                         <tr>
-                            <td><?= htmlspecialchars($row['id']); ?></td>
-                            <td><?= htmlspecialchars($row['first_name']); ?></td>
-                            <td><?= htmlspecialchars($row['last_name']); ?></td>
-                            <td><?= htmlspecialchars($row['email']); ?></td>
-                            <td><?= htmlspecialchars($row['phone_number']); ?></td>
-                            <td><?= htmlspecialchars($row['user_name']); ?></td>
-                            <td><?= htmlspecialchars($row['address']); ?></td>
-                            <td><?= htmlspecialchars($row['shipping_address']); ?></td>
+                            <td><?= isset($row['id']) ? htmlspecialchars($row['id']) : ''; ?></td>
+                            <td>
+                                <img src="../uploads/<?= isset($row['picture']) ? htmlspecialchars($row['picture']) : ''; ?>" alt="<?= isset($row['title']) ? htmlspecialchars($row['title']) : ''; ?>">
+                            </td>
+                            <td><?= isset($row['title']) ? htmlspecialchars($row['title']) : ''; ?></td>
+                            <td><?= isset($row['category_name']) ? htmlspecialchars($row['category_name']) : ''; ?></td>
+                            <td><?= isset($row['is_new']) ? ($row['is_new'] ? 'Yes' : 'No') : ''; ?></td>
+                            <td><?= isset($row['unit_price']) ? htmlspecialchars(number_format($row['unit_price'], 2)) : ''; ?></td>
+
+                            <td><?= isset($row['qty']) ? htmlspecialchars($row['qty']) : ''; ?></td>
+                            <td><?= isset($row['total_quantity']) ? htmlspecialchars($row['total_quantity']) : ''; ?></td>
+                            <td><?= isset($row['stock_quantity']) ? htmlspecialchars($row['stock_quantity']) : ''; ?></td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    
-                                    <a href="http://localhost/ecommerce_project/admin/users/delete.php?id=<?= htmlspecialchars($row['id']); ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+                                    <a href="http://localhost/ecommerce_project/admin/products/edit.php?id=<?= isset($row['id']) ? htmlspecialchars($row['id']) : ''; ?>" class="btn btn-primary btn-sm">Edit</a>
+                                    <a href="http://localhost/ecommerce_project/admin/products/delete.php?id=<?= isset($row['id']) ? htmlspecialchars($row['id']) : ''; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this product?');">Delete</a>
                                 </div>
                             </td>
                         </tr>

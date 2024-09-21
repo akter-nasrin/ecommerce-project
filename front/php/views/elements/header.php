@@ -17,7 +17,7 @@ $categories = $_category->index();
             border-bottom: 1px solid #efefef;
         }
         header .top-header .nav-link {
-            font-size: 0.625rem;
+            font-size: 0.75rem;
             font-weight: 600;
             letter-spacing: 0.5px;
             border-right: 1px solid #efefef;
@@ -37,7 +37,7 @@ $categories = $_category->index();
         header .middle-part .container .row .col-sm-8 .nav .nav-link {
             padding: 0.625rem 0.4375rem 0.4375rem 0.4375rem;
             color: #858585;
-            font-size: 0.625rem;
+            font-size: 0.75rem;
             font-weight: normal;
             text-transform: uppercase;
         }
@@ -65,7 +65,7 @@ $categories = $_category->index();
             margin-right: 0.6rem;
         }
         header .middle-part .container .row .col-sm-8 .nav .nav-link .btn-danger {
-            background-color: #ef4749;
+            background-color: #0d6efd;
             border-color: transparent;
         }
         header .middle-part .container .row .col-sm-8 .nav .nav-link .btn {
@@ -89,7 +89,7 @@ $categories = $_category->index();
             padding-right: 7px;
         }
         header .navbar .container .navbar-nav .nav-link {
-            font-size: 0.7rem;
+            font-size: 1rem;
             padding: 11px 0 7px;
             text-transform: uppercase;
             color: #fff;
@@ -100,10 +100,10 @@ $categories = $_category->index();
             margin-bottom: 0.3rem;
         }
         header .navbar .container .navbar-nav .nav-item:hover {
-            background-color: #f8f8f8;
+            background-color: #28a745;
         }
         header .navbar .container .navbar-nav .nav-item:hover .nav-link {
-            color: #6c6c6c;
+            color: #fff;
             border-bottom: 1px solid #d5cdcd;
             margin-bottom: 0.3rem;
         }
@@ -160,7 +160,7 @@ $categories = $_category->index();
                 <div class="col-sm-2">
                     <div class="logo">
                         <a class="navbar-brand" href="index.php">
-                            <img src="img/logo_title.png" alt="Logo Icon" class="img-fluid">
+                            <img src="" alt="" class="img-fluid">
                         </a>
                     </div>
                 </div>
@@ -185,7 +185,7 @@ $categories = $_category->index();
 
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#myNav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+ <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#myNav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="myNav">

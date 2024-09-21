@@ -22,22 +22,22 @@ $products1 = $_products1->getActiveProducts1();
               <div class="accordion-body">
                 <ul class="nav flex-column">
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Parata</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Sabji</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Dal</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Dim Khichuri</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Singara</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Noodles</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                 </ul>
 
@@ -54,25 +54,25 @@ $products1 = $_products1->getActiveProducts1();
               <div class="accordion-body">
                 <ul class="nav flex-column">
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Vaat</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Mutton Curry</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Chikken Curry</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Dal</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Vagetables</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Rui Mach Vuna</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Beef Curry</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
 
                 </ul>
@@ -90,19 +90,19 @@ $products1 = $_products1->getActiveProducts1();
               <div class="accordion-body">
                 <ul class="nav flex-column">
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Sofas</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Chairs</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Table</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Racks & Cabinets</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="#">Interior</a>
+                    <a class="nav-link" href="#"></a>
                   </li>
                   
 
@@ -116,7 +116,7 @@ $products1 = $_products1->getActiveProducts1();
       <div class="col-sm-9">
         <section class="products">
           <div class="container">
-            <h2 class="text-uppercase"><a href="#bedroom">Bedroom</a> </h2>
+            <h2 class="text-uppercase"><a href=""></a> </h2>
 
             <div class="row row-cols-1 row-cols-md-3 g-4">
             <?php

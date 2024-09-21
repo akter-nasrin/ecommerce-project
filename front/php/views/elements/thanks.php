@@ -114,98 +114,12 @@
     </div>
 </section>
 
-<?php
-try {
-    session_start();
-    $conn = new PDO("mysql:host=localhost;dbname=ecommerce_project", "root", "");
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    if (isset($_SESSION['user_id'])) {
-        $user_id = $_SESSION['user_id'];
-
-        $sql = "SELECT users.email, carts.title, carts.quantity, carts.total_price, users.address
-                FROM carts
-                INNER JOIN users ON carts.user_id = users.id
-              
-                WHERE carts.user_id = :user_id 
-                ORDER BY carts.id DESC 
-                LIMIT 1";
-        $stmt = $conn->prepare($sql);
-        $stmt->bindParam(':user_id', $user_id);
-        $stmt->execute();
-        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetching items currently in the user's cart
-
-        // Calculate the grand total
-        $grand_total = 0;
-        foreach ($orders as $order) {
-            $grand_total += floatval($order['total_price']);
-        }
-    } else {
-        echo "User is not logged in.";
-        $orders = null;
-    }
-} catch (PDOException $e) {
-    echo "Error: " . $e->getMessage();
-    $orders = null;
-}
-?>
-
-<?php if ($orders): ?>
-    <!-- Displaying details for all orders -->
-    <div class="invoice-wrapper" id="invoice">
-        <div class="invoice-header">
-            <h2>Invoice</h2>
-        </div>
-        <div class="invoice-body">
-            <table class="invoice-details">
-                <thead>
-                    <tr>
-                        <th>Email</th>
-                        <th>Product Title</th>
-                        <th>Quantity</th>
-                        <th>Total Price</th>
-                        <th>Delivery Address</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($orders as $order): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($order['email']); ?></td>
-                            <td><?php echo htmlspecialchars($order['title']); ?></td>
-                            <td><?php echo htmlspecialchars($order['quantity']); ?></td>
-                            <td><?php echo htmlspecialchars($order['total_price']); ?></td>
-                            <td><?php echo htmlspecialchars($order['address']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <div class="invoice-footer">
-            <p>Grand Total: <?php echo number_format($grand_total, 2); ?></p>
-            <p>Thank you for your purchase!</p>
-        </div>
-    </div>
-    <button class="print-button" onclick="printInvoice()">Print Invoice</button>
-<?php else: ?>
-    <p class="text-center">You have no orders yet. Why not explore our shop and find something you love?</p>
-<?php endif; ?>
 
 <div class="thankyou-wrapper">
     <a href="../../public/index.php" class="back-home">Back to home</a>
 </div>
 
-<script>
-    function printInvoice() {
-        var printContents = document.getElementById("invoice").innerHTML;
-        var originalContents = document.body.innerHTML;
 
-        document.body.innerHTML = printContents;
-        window.print();
-
-        document.body.innerHTML = originalContents;
-        location.reload();  // Reload the page to restore original content after printing
-    }
-</script>
 
 </body>
 </html>
